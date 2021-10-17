@@ -16,17 +16,29 @@ struct dictionary {
 };
 
 
-bool writeToFile(dictionary word, fstream& file) {
+void writeToFile(dictionary word, fstream& file) {
 	if (!file.is_open()) {
 		cout << "File did not open correctly!!";
-		return false;
 	}
 	else {
 		file.write((char*)&word, sizeof(word));
-		return true;
 	}
-	
 }
+
+
+dictionary readFromFile(fstream& file, int pos) {
+
+	dictionary readData;
+	if (!file.is_open()) {
+		cout << "File did not open correctly!!";
+	}
+	else {
+		file.seekg(pos);
+		file.read((char*)&readData, sizeof(readData));
+	}
+	return readData;
+}
+
 
 
 
@@ -34,13 +46,16 @@ int main()
 {
 	//test for write to file function
 
-	fstream file("data.bin", ios::binary | ios::out);
+	fstream file("data.bin", ios::binary | ios::out | ios::in);
 
 	dictionary wordData;
-	strcpy_s(wordData.word, "abebe");
 
-	writeToFile(wordData, file);
+	wordData= readFromFile(file, 0);
 
+	cout << wordData.word;
+
+
+	
 	
 
 	
