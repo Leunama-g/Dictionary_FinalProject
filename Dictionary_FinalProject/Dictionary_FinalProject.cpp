@@ -8,6 +8,7 @@ using namespace std;
 //string enumerations for word types
 string noun = "noun", pronoun = "pron", adjective = "adje", adverb = "adve", preposition = "prep", conjunction = "conj", interjection = "inte";
 
+
 struct dictionary {
 	char word[50];
 	char pron[60]; //pronunciation
