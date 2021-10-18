@@ -11,23 +11,22 @@ public:
 	AVL(AVL<T>& av); //copy constructor
 	virtual ~AVL(); //destructor
 	int isEmpty();
-	tree<T> insert(AVL<T>  av, T data);
+	AVL<T> insert(AVL<T>  av, T data);
 	void preorder(AVL<T> t);
 	void inorder(AVL<T> t);
-	void postorder(AVL<T> t)
-	tree<T> remove(AVL<T> t, T data);
+	void postorder(AVL<T> t);
+	AVL<T> remove(AVL<T> t, T data);
 	nodeT<T>* find(T data);
 	void empty();
-	virtual DList<T>* copy();
 protected:
 	nodeT<T>* root;
-	int height(nodeT<T>* root)
-	int difference(nodeT<T>* root)
-	Tree balance(nodeT<T>* root)
-	Tree RRRotate(nodeT<T>* root)
-	Tree RLRotate(nodeT<T>* root)
-	Tree LLRotate(nodeT<T>* root)
-	Tree LRRotate(nodeT<T>* root)
+	int height(nodeT<T>* root);
+	int difference(nodeT<T>* root);
+	AVL<T> balance(nodeT<T>* root);
+	AVL<T> RRRotate(nodeT<T>* root);
+	AVL<T> RLRotate(nodeT<T>* root);
+	AVL<T> LLRotate(nodeT<T>* root);
+	AVL<T> LRRotate(nodeT<T>* root);
 private:
 
 };

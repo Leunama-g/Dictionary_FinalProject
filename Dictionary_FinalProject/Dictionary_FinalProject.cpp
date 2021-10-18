@@ -2,12 +2,27 @@
 #include <fstream>
 #include <string>  
 #include "linkedList.h"
+#include "AVLTree.h"
 
 using namespace std;
 
-//string enumerations for word types
+/*
+
+
+    string enumerations for word types
+
+
+*/
+
 string noun = "noun", pronoun = "pron", adjective = "adje", adverb = "adve", preposition = "prep", conjunction = "conj", interjection = "inte";
 
+/*
+
+
+    Structures Used
+
+
+*/
 
 struct dictionary {
 	char word[50];
@@ -16,6 +31,19 @@ struct dictionary {
 	char meaning[200];
 	bool deleted = false;
 };
+
+struct dicIndex {
+    char word[50];
+    List<int> posList;// list of position(references) of record on the file
+};
+
+/*
+
+
+    Linked List implementation
+
+
+*/
 
 template <class T>
 List<T>::List() {
@@ -138,13 +166,17 @@ void List<T>::print() {
     cout << endl;
 }
    
-    
+/*
 
 
+    file handler functions 
+
+
+*/
 
 void writeToFile(dictionary word, fstream& file) {
 	if (!file.is_open()) {
-		cout << "File did not open correctly!!";
+		cout << "File did not open correctly!!(Writing to File Failed)";
 	}
 	else {
 		file.write((char*)&word, sizeof(word));
@@ -156,7 +188,7 @@ dictionary readFromFile(fstream& file, int pos) {
 
 	dictionary readData;
 	if (!file.is_open()) {
-		cout << "File did not open correctly!!";
+		cout << "File did not open correctly!!(Reading From File Failed)";
 	}
 	else {
 		file.seekg(pos);
