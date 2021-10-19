@@ -32,10 +32,7 @@ struct dictionary {
 	bool deleted = false;
 };
 
-struct dicIndex {
-    char word[50];
-    List<int> posList;// list of position(references) of record on the file
-};
+
 
 /*
 
@@ -168,18 +165,18 @@ void List<T>::print() {
 
 */
 
-template <class T>
-AVL<T>::AVL() {
+
+AVL::AVL() {
     root = NULL;
 }
 
-template <class T>
-AVL<T>::~AVL() {
-    empty();
+
+AVL::~AVL() {
+    empty(root);
 }
 
-template <class T>
-nodeT<T>* AVL<T>::empty(nodeT<T>* node) {
+
+nodeT* AVL::empty(nodeT* node) {
     if (node == NULL) {
         return NULL;
     }
@@ -187,38 +184,40 @@ nodeT<T>* AVL<T>::empty(nodeT<T>* node) {
         empty(node->left);
         empty(node->right);
         delete node;
-        return NULL;
+        
     }
+    return NULL;
 }
 
-template <class T>
-nodeT<T>* AVL<T>::search(T data, nodeT<T>* t) {
+nodeT* AVL::search(char data[], nodeT* t) {
     if (t == NULL) {
         return NULL;
     }
-    else if (data == t->data) {
+    else if (cmpData(data, t->data.word) == 0) {
         return t;
     }
-    else if (data < t->data) {
+    else if (cmpData(data, t->data.word) == -1) {
         return search(data, t->left);
     }
     else {
         return search(data, t->right);
-    }
+    }    
 }
 
-template <class T>
-nodeT<T>* AVL<T>::find(T data) {
+
+
+
+nodeT* AVL::find(char data[]) {
     return search(data, root);
 }
 
-template <class T>
-bool AVL<T>::isEmpty() {
+
+bool AVL::isEmpty() {
     return root == NULL;
 }
 
-template <class T>
-int AVL<T>::height(nodeT<T>* root) {
+
+int AVL::height(nodeT* root) {
     if (root == NULL)
         return -1;
     else {
@@ -233,17 +232,17 @@ int AVL<T>::height(nodeT<T>* root) {
     }
 }
 
-template <class T>
-int AVL<T>::difference(nodeT<T>* root) {
+
+int AVL::difference(nodeT* root) {
     if (root == NULL)
         return -1;
     return height(root->left) - height(root->right);
 }
 
-template <class T>
-nodeT<T>* AVL<T>::RRRotate(nodeT<T>* root) {
-    nodeT<T>* y = root->right;
-    nodeT<T>* T2 = y->left;
+
+nodeT* AVL::RRRotate(nodeT* root) {
+    nodeT* y = root->right;
+    nodeT* T2 = y->left;
 
     // Perform rotation  
     y->left = root;
@@ -252,16 +251,16 @@ nodeT<T>* AVL<T>::RRRotate(nodeT<T>* root) {
     return y;
 }
 
-template <class T>
-nodeT<T>* AVL<T>::RLRotate(nodeT<T>* root) {
+
+nodeT* AVL::RLRotate(nodeT* root) {
     root->right = LLRotate(root->right);
     return RRRotate(root);
 }
 
-template <class T>
-nodeT<T>* AVL<T>::LLRotate(nodeT<T>* root) {
-    nodeT<T>* x = root->left;
-    nodeT<T>* T2 = x->right;
+
+nodeT* AVL::LLRotate(nodeT* root) {
+    nodeT* x = root->left;
+    nodeT* T2 = x->right;
 
     // Perform rotation  
     x->right = root;
@@ -270,26 +269,25 @@ nodeT<T>* AVL<T>::LLRotate(nodeT<T>* root) {
     return x;
 }
 
-template <class T>
-nodeT<T>* AVL<T>::LRRotate(nodeT<T>* root) {
+nodeT* AVL::LRRotate(nodeT* root) {
     root->left = RRRotate(root->left);
     return LLRotate(root);
 }
 
-template <class T>
-nodeT<T>* AVL<T>::balance(nodeT<T>* root) {
+
+nodeT* AVL::balance(nodeT* root) {
     int bf = difference(root);
 
     if (bf > 1)
     {
-        if (difference(root->l) > 0)
+        if (difference(root->left) > 0)
             root = LLRotate(root);
         else
             root = LRRotate(root);
     }
     else if (bf < -1)
     {
-        if (difference(root->r) > 0)
+        if (difference(root->right) > 0)
             root = RLRotate(root);
         else
             root = RRRotate(root);
@@ -297,31 +295,30 @@ nodeT<T>* AVL<T>::balance(nodeT<T>* root) {
     return root;
 }
 
-template <class T>
-nodeT<T>* AVL<T>::insert(nodeT<T>* t, T data) {
+nodeT* AVL::insert(nodeT* t, dicIndex data) {
     if (t == NULL)
     {
-        t = new nodeT<T>*;
+        t = new nodeT;
         t->data = data;
         t->left = NULL;
         t->right = NULL;
         return t;
     }
-    else if (data < t->data)
+    else if (cmpData(data.word, t->data.word) == -1)
     {
         t->left = insert(t->left, data);
         t = balance(t);
     }
-    else if (data >= t->data)
+    else if (cmpData(data.word, t->data.word) == 1)
     {
         t->right = insert(t->right, data);
         t = balance(t);
     }
 }
 
-template <class T>
-nodeT<T> AVL<T>::minValueNode(nodeT<T>* node) {
-    nodeT<T>* current = node;
+
+nodeT* AVL::minValueNode(nodeT* node) {
+    nodeT* current = node;
     
     while (current->left != NULL) {
         current = current->left;
@@ -329,31 +326,31 @@ nodeT<T> AVL<T>::minValueNode(nodeT<T>* node) {
     return current;
 }
 
-template <class T>
-nodeT<T>* AVL<T>::remove(nodeT<T>* t, T data) {
+
+nodeT* AVL::remove(nodeT* t, dicIndex data) {
     if (t == NULL) {
         return NULL;
     }
-    else if (data < t->data) {
+    else if (cmpData(data.word, t->data.word) == -1) {
         t->left = remove(t->left, data);
     }
-    else if (data > t->data) {
+    else if (cmpData(data.word, t->data.word) == 1) {
         t->right = remove(t->right, data);
     }
     else {
         if (t->left == NULL) {
-            nodeT<T>* temp = t->right;
+            nodeT* temp = t->right;
             delete t;
             return temp;
         }
         else if (t->right == NULL) {
-            nodeT<T>* temp = t->left;
+            nodeT* temp = t->left;
             delete t;
             return temp;
         }
         else {       
-            nodeT<T>* temp = minValueNode(t->right);
-            t->value = temp->data;            
+            nodeT* temp = minValueNode(t->right);
+            t->data = temp->data;            
             t->right = remove(t->right, temp->data);          
         }
     }
@@ -362,38 +359,37 @@ nodeT<T>* AVL<T>::remove(nodeT<T>* t, T data) {
 
 }
 
-template <class T>
-void AVL<T>::inorder(nodeT<T>* t)
+void AVL::inorder(nodeT* t)
 {
-    if (t == NULL)
+    
+    if (t == NULL) {
         return;
+    }
+        
     inorder(t->left);
-    cout << t->data << " ";
+    cout << t->data.word << " ";
     inorder(t->right);
 }
 
-template <class T>
-void AVL<T>::preorder(nodeT<T>* t)
+void AVL::preorder(nodeT* t)
 {
     if (t == NULL)
         return;
-    cout << t->data << " ";
+    cout << t->data.word << " ";
     preorder(t->left);
     preorder(t->right);
 }
 
-template <class T>
-void AVL<T>::postorder(nodeT<T>* t)
+
+void AVL::postorder(nodeT* t)
 {
     if (t == NULL)
         return;
     postorder(t->left);
     postorder(t->right);
-    cout << t->data << " ";
+    cout << t->data.word << " ";
 }
-
-
-   
+  
 /*
 
 
@@ -425,21 +421,29 @@ dictionary readFromFile(fstream& file, int pos) {
 	return readData;
 }
 
+/*
 
+
+    utility functions
+
+
+*/
+
+int cmpData(char x[], char y[]) {
+    for (int i = 0; i < 50; i++) {
+        if (x[i] < y[i])
+            return -1;
+        else if (x[i] > y[i]) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
 
 int main()
 {
-	//test for write to file function
-
-	fstream file("data.bin", ios::binary | ios::out | ios::in);
-
-	dictionary wordData;
-
-	wordData= readFromFile(file, 0);
-
-	cout << wordData.word;
-
+	
 
 	
 

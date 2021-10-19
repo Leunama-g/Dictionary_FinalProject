@@ -1,34 +1,38 @@
-template <class T>
-struct nodeT {
-	T data;
-	nodeT<T>* left;
-	nodeT<T>* right;
+struct dicIndex {
+	char word[50];
+	List<int> posList;// list of position(references) of record on the file
 };
-template <class T>
+
+struct nodeT {
+	dicIndex data;
+	nodeT* left;
+	nodeT* right;
+};
+
 class AVL {
 public:
 	AVL(); //done
 	virtual ~AVL();//done
-	nodeT<T>* root;
+	nodeT* root;
 	bool isEmpty(); //done
-	nodeT<T>* insert(nodeT<T>* t, T data);//done
-	void preorder(nodeT<T>* t);//done
-	void inorder(nodeT<T>* t);//done
-	void postorder(nodeT<T>* t);//done
-	nodeT<T> minValueNode(nodeT<T>* node);//done
-	nodeT<T>* remove(nodeT<T>* t, T data);//done
-	nodeT<T>* find(T data);//done
-	nodeT<T>* search(T data, nodeT<T>* t);//done
-	nodeT<T>* empty(nodeT<T>* node);//done
+	nodeT* insert(nodeT* t, dicIndex data);//done
+	void preorder(nodeT* t);//done
+	void inorder(nodeT* t);//done
+	void postorder(nodeT* t);//done
+	nodeT* minValueNode(nodeT* node);//done
+	nodeT* remove(nodeT* t, dicIndex data);//done
+	nodeT* find(char data[]);//done
+	nodeT* search(char data[], nodeT* t);//done
+	nodeT* empty(nodeT* node);//done
 
 protected:
-	int height(nodeT<T>* root); //done
-	int difference(nodeT<T>* root); //done
-	nodeT<T>* balance(nodeT<T>* root); //done
-	nodeT<T>* RRRotate(nodeT<T>* root); //done
-	nodeT<T>* RLRotate(nodeT<T>* root); //done
-	nodeT<T>* LLRotate(nodeT<T>* root); //done
-	nodeT<T>* LRRotate(nodeT<T>* root); //done
+	int height(nodeT* root); //done
+	int difference(nodeT* root); //done
+	nodeT* balance(nodeT* root); //done
+	nodeT* RRRotate(nodeT* root); //done
+	nodeT* RLRotate(nodeT* root); //done
+	nodeT* LLRotate(nodeT* root); //done
+	nodeT* LRRotate(nodeT* root); //done
 private:
 
 };
