@@ -40,7 +40,7 @@ int cmpData(char x[], char y[]) {
 
 int charArraySize(char word[]) {
     int size;
-    for (size = 0; size, 50; size++) {
+    for (size = 0; size < 50; size++) {
         if (word[size] == NULL)
             break;
     }
@@ -62,16 +62,16 @@ int searchType(char word[], int size) {
     }
 }
 
-void withoutWildcard(char* word, int size, int type) {    
+string withoutWildcard(char word[], int size) {    
     string buffer="";
     int ctr = 0;
 
     for (int i = 0; i < size ; i++ ) {
-        if (!word[i] == '*')
+        if (!(word[i] == '*'))
             buffer += word[i];      
-    }
+    }    
 
-    //use str cpy
+    return buffer;
 }
 
 /*
@@ -523,9 +523,12 @@ int main()
     init();
 
     char input='0';
-    char x[50] = { '*','b','*' };
-    int size = 0;
-    string y;
+    char x[50] = { 'a','b','c','*' };
+    int size = charArraySize(x);
+    string y = withoutWildcard(x, size);
+
+    strcpy_s(x, y.c_str());
+
     while (input != '4') {
         cout << "Welcome To The Application" << endl << endl;
         cout << "\t1. Serach the definition of a word." << endl;
@@ -540,19 +543,18 @@ int main()
         {
         case '1':
             //code implementation for search 
-            size = charArraySize(x);
-            //withoutWildcard(x, size, searchType(x, size));
-            //size = charArraySize(x);
-            cout << x[size-1] << ", " << size << ", " << searchType(x, size);
+            cout << x;
             cin >> x;
             system("cls");
             break;
         case '2':
             //code implementation for add record
+
             system("cls");
             break;
         case '3':
             //code implementation for about
+
             system("cls");
             break;
         case '4':
