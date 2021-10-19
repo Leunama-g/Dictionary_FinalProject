@@ -7,7 +7,6 @@ template <class T>
 class List { //unsorted list
 public:
 	List(); //default constructor
-	List(List<T>& L); //copy constructor
 	virtual ~List(); //destructor
 	bool isEmpty();
 	void insert(T data);//insert always by tail

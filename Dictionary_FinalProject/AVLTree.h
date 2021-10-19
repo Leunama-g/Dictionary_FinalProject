@@ -7,26 +7,28 @@ struct nodeT {
 template <class T>
 class AVL {
 public:
-	AVL(); //default constructor
-	AVL(AVL<T>& av); //copy constructor
-	virtual ~AVL(); //destructor
-	int isEmpty();
-	AVL<T> insert(AVL<T>  av, T data);
-	void preorder(AVL<T> t);
-	void inorder(AVL<T> t);
-	void postorder(AVL<T> t);
-	AVL<T> remove(AVL<T> t, T data);
-	nodeT<T>* find(T data);
-	void empty();
-protected:
+	AVL(); //done
+	virtual ~AVL();//done
 	nodeT<T>* root;
-	int height(nodeT<T>* root);
-	int difference(nodeT<T>* root);
-	AVL<T> balance(nodeT<T>* root);
-	AVL<T> RRRotate(nodeT<T>* root);
-	AVL<T> RLRotate(nodeT<T>* root);
-	AVL<T> LLRotate(nodeT<T>* root);
-	AVL<T> LRRotate(nodeT<T>* root);
+	bool isEmpty(); //done
+	nodeT<T>* insert(nodeT<T>* t, T data);//done
+	void preorder(nodeT<T>* t);//done
+	void inorder(nodeT<T>* t);//done
+	void postorder(nodeT<T>* t);//done
+	nodeT<T> minValueNode(nodeT<T>* node);//done
+	nodeT<T>* remove(nodeT<T>* t, T data);//done
+	nodeT<T>* find(T data);//done
+	nodeT<T>* search(T data, nodeT<T>* t);//done
+	nodeT<T>* empty(nodeT<T>* node);//done
+
+protected:
+	int height(nodeT<T>* root); //done
+	int difference(nodeT<T>* root); //done
+	nodeT<T>* balance(nodeT<T>* root); //done
+	nodeT<T>* RRRotate(nodeT<T>* root); //done
+	nodeT<T>* RLRotate(nodeT<T>* root); //done
+	nodeT<T>* LLRotate(nodeT<T>* root); //done
+	nodeT<T>* LRRotate(nodeT<T>* root); //done
 private:
 
 };

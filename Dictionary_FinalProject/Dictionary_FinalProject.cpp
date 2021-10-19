@@ -52,12 +52,6 @@ List<T>::List() {
 }
 
 template <class T>
-List<T>::List(List<T>& L) {
-    head = L.head;
-    tail = L.tail;
-}
-
-template <class T>
 List<T>::~List() {
     empty();
 }
@@ -165,6 +159,240 @@ void List<T>::print() {
     }
     cout << endl;
 }
+
+/*
+
+
+    AVL tree implementation
+
+
+*/
+
+template <class T>
+AVL<T>::AVL() {
+    root = NULL;
+}
+
+template <class T>
+AVL<T>::~AVL() {
+    empty();
+}
+
+template <class T>
+nodeT<T>* AVL<T>::empty(nodeT<T>* node) {
+    if (node == NULL) {
+        return NULL;
+    }
+    else {
+        empty(node->left);
+        empty(node->right);
+        delete node;
+        return NULL;
+    }
+}
+
+template <class T>
+nodeT<T>* AVL<T>::search(T data, nodeT<T>* t) {
+    if (t == NULL) {
+        return NULL;
+    }
+    else if (data == t->data) {
+        return t;
+    }
+    else if (data < t->data) {
+        return search(data, t->left);
+    }
+    else {
+        return search(data, t->right);
+    }
+}
+
+template <class T>
+nodeT<T>* AVL<T>::find(T data) {
+    return search(data, root);
+}
+
+template <class T>
+bool AVL<T>::isEmpty() {
+    return root == NULL;
+}
+
+template <class T>
+int AVL<T>::height(nodeT<T>* root) {
+    if (root == NULL)
+        return -1;
+    else {
+        /* compute the height of each subtree */
+        int lheight = height(root->left);
+        int rheight = height(root->right);
+
+        /* use the larger one */
+        if (lheight > rheight)
+            return (lheight + 1);
+        else return (rheight + 1);
+    }
+}
+
+template <class T>
+int AVL<T>::difference(nodeT<T>* root) {
+    if (root == NULL)
+        return -1;
+    return height(root->left) - height(root->right);
+}
+
+template <class T>
+nodeT<T>* AVL<T>::RRRotate(nodeT<T>* root) {
+    nodeT<T>* y = root->right;
+    nodeT<T>* T2 = y->left;
+
+    // Perform rotation  
+    y->left = root;
+    root->right = T2;
+
+    return y;
+}
+
+template <class T>
+nodeT<T>* AVL<T>::RLRotate(nodeT<T>* root) {
+    root->right = LLRotate(root->right);
+    return RRRotate(root);
+}
+
+template <class T>
+nodeT<T>* AVL<T>::LLRotate(nodeT<T>* root) {
+    nodeT<T>* x = root->left;
+    nodeT<T>* T2 = x->right;
+
+    // Perform rotation  
+    x->right = root;
+    root->left = T2;
+
+    return x;
+}
+
+template <class T>
+nodeT<T>* AVL<T>::LRRotate(nodeT<T>* root) {
+    root->left = RRRotate(root->left);
+    return LLRotate(root);
+}
+
+template <class T>
+nodeT<T>* AVL<T>::balance(nodeT<T>* root) {
+    int bf = difference(root);
+
+    if (bf > 1)
+    {
+        if (difference(root->l) > 0)
+            root = LLRotate(root);
+        else
+            root = LRRotate(root);
+    }
+    else if (bf < -1)
+    {
+        if (difference(root->r) > 0)
+            root = RLRotate(root);
+        else
+            root = RRRotate(root);
+    }
+    return root;
+}
+
+template <class T>
+nodeT<T>* AVL<T>::insert(nodeT<T>* t, T data) {
+    if (t == NULL)
+    {
+        t = new nodeT<T>*;
+        t->data = data;
+        t->left = NULL;
+        t->right = NULL;
+        return t;
+    }
+    else if (data < t->data)
+    {
+        t->left = insert(t->left, data);
+        t = balance(t);
+    }
+    else if (data >= t->data)
+    {
+        t->right = insert(t->right, data);
+        t = balance(t);
+    }
+}
+
+template <class T>
+nodeT<T> AVL<T>::minValueNode(nodeT<T>* node) {
+    nodeT<T>* current = node;
+    
+    while (current->left != NULL) {
+        current = current->left;
+    }
+    return current;
+}
+
+template <class T>
+nodeT<T>* AVL<T>::remove(nodeT<T>* t, T data) {
+    if (t == NULL) {
+        return NULL;
+    }
+    else if (data < t->data) {
+        t->left = remove(t->left, data);
+    }
+    else if (data > t->data) {
+        t->right = remove(t->right, data);
+    }
+    else {
+        if (t->left == NULL) {
+            nodeT<T>* temp = t->right;
+            delete t;
+            return temp;
+        }
+        else if (t->right == NULL) {
+            nodeT<T>* temp = t->left;
+            delete t;
+            return temp;
+        }
+        else {       
+            nodeT<T>* temp = minValueNode(t->right);
+            t->value = temp->data;            
+            t->right = remove(t->right, temp->data);          
+        }
+    }
+
+    balance(t);
+
+}
+
+template <class T>
+void AVL<T>::inorder(nodeT<T>* t)
+{
+    if (t == NULL)
+        return;
+    inorder(t->left);
+    cout << t->data << " ";
+    inorder(t->right);
+}
+
+template <class T>
+void AVL<T>::preorder(nodeT<T>* t)
+{
+    if (t == NULL)
+        return;
+    cout << t->data << " ";
+    preorder(t->left);
+    preorder(t->right);
+}
+
+template <class T>
+void AVL<T>::postorder(nodeT<T>* t)
+{
+    if (t == NULL)
+        return;
+    postorder(t->left);
+    postorder(t->right);
+    cout << t->data << " ";
+}
+
+
    
 /*
 
