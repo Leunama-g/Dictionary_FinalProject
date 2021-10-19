@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>  
+#include <iomanip>
 #include "linkedList.h"
 #include "AVLTree.h"
 
@@ -9,12 +10,69 @@ using namespace std;
 /*
 
 
-    string enumerations for word types
+    global variables
 
 
 */
 
 string noun = "noun", pronoun = "pron", adjective = "adje", adverb = "adve", preposition = "prep", conjunction = "conj", interjection = "inte";
+enum { normal = 1, prefix = 2, infix = 3, postfix = 4 };
+AVL dataOnTree;
+
+/*
+
+
+    utility functions
+
+
+*/
+
+int cmpData(char x[], char y[]) {
+    for (int i = 0; i < 50; i++) {
+        if (x[i] < y[i])
+            return -1;
+        else if (x[i] > y[i]) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int charArraySize(char word[]) {
+    int size;
+    for (size = 0; size, 50; size++) {
+        if (word[size] == NULL)
+            break;
+    }
+    return size;
+}
+
+int searchType(char word[], int size) {
+    if (word[0] == '*') {
+        if (word[size - 1] == '*') {
+            return infix;
+        }
+        return prefix;
+    }
+    else {
+        if (word[size - 1] == '*') {
+            return postfix;
+        }
+        return normal;
+    }
+}
+
+void withoutWildcard(char* word, int size, int type) {    
+    string buffer="";
+    int ctr = 0;
+
+    for (int i = 0; i < size ; i++ ) {
+        if (!word[i] == '*')
+            buffer += word[i];      
+    }
+
+    //use str cpy
+}
 
 /*
 
@@ -398,11 +456,12 @@ void AVL::postorder(nodeT* t)
 
 */
 
-void writeToFile(dictionary word, fstream& file) {
+void writeToFile(fstream& file, dictionary word, int pos) {
 	if (!file.is_open()) {
 		cout << "File did not open correctly!!(Writing to File Failed)";
 	}
 	else {
+        file.seekg(pos);
 		file.write((char*)&word, sizeof(word));
 	}
 }
@@ -421,29 +480,95 @@ dictionary readFromFile(fstream& file, int pos) {
 	return readData;
 }
 
-/*
+//load dictionary records into memory
+//only the word and the position of their respective meanings on the file are loaded 
 
+void init() {
+    dictionary incomingData;
+    dicIndex treeNode;
+    nodeT* buffer;
+    int pos = 0;
 
-    utility functions
+    fstream file("data.bin", ios::binary | ios::in | ios::out);
 
+    while (file.eof()) {
+        incomingData = readFromFile(file, pos);
+        buffer = dataOnTree.find(incomingData.word);
 
-*/
-
-int cmpData(char x[], char y[]) {
-    for (int i = 0; i < 50; i++) {
-        if (x[i] < y[i])
-            return -1;
-        else if (x[i] > y[i]) {
-            return 1;
-        }
-    }
-    return 0;
+        //check if the record that was read is deleted data
+        if (!incomingData.deleted) {
+            //inserting a word that has not yet been inserted to the tree
+            if (buffer == NULL) {
+                strcpy_s(treeNode.word, incomingData.word);
+                treeNode.posList.insert(pos);
+                if (dataOnTree.isEmpty())
+                    dataOnTree.root = dataOnTree.insert(dataOnTree.root, treeNode);
+                else
+                    dataOnTree.insert(dataOnTree.root, treeNode);
+            }
+            else
+                buffer->data.posList.insert(pos);
+        }  
+        pos += sizeof(dictionary);
+    }    
+    file.close();
 }
+
+
 
 
 int main()
 {
-	
+    //load data to memory
+    init();
+
+    char input='0';
+    char x[50] = { '*','b','*' };
+    int size = 0;
+    string y;
+    while (input != '4') {
+        cout << "Welcome To The Application" << endl << endl;
+        cout << "\t1. Serach the definition of a word." << endl;
+        cout << "\t2. Add a dictionary record." << endl;
+        cout << "\t3. About the dev team." << endl;
+        cout << "\t4. Exit." << endl << endl;
+
+        cout << "Enter Your Choice: ";
+        cin >> setw(1) >> input;
+
+        switch (input)
+        {
+        case '1':
+            //code implementation for search 
+            size = charArraySize(x);
+            //withoutWildcard(x, size, searchType(x, size));
+            //size = charArraySize(x);
+            cout << x[size-1] << ", " << size << ", " << searchType(x, size);
+            cin >> x;
+            system("cls");
+            break;
+        case '2':
+            //code implementation for add record
+            system("cls");
+            break;
+        case '3':
+            //code implementation for about
+            system("cls");
+            break;
+        case '4':
+            break;
+        default:
+            input = '0';
+            system("cls");
+            
+            cout << "Wrong input detected!!!(enter only one character from 1-4)"<<endl<<endl;
+            break;
+        }
+    }
+    
+
+    
+    
 
 	
 
