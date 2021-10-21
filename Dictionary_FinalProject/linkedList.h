@@ -14,6 +14,7 @@ public:
 	nodeL<T>* find(T data);
 	void empty();
 	void print();
+	nodeL<T>* gethead();
 protected:
 	nodeL<T>* head;
 	nodeL<T>* tail;

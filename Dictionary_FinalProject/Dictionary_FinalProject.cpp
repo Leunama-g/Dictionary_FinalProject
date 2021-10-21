@@ -19,8 +19,6 @@ string noun = "Noun", verb = "Verb" , pronoun = "Pronoun", adjective = "Adjectiv
 enum { normal = 1, prefix = 2, infix = 3, postfix = 4 };
 AVL dataOnTree;
 
-
-
 int FEP=0;
 
 /*
@@ -118,6 +116,11 @@ List<T>::~List() {
 template <class T>
 bool List<T>::isEmpty() {
     return head == NULL;
+}
+
+template <class T>
+nodeL<T>* List<T>::gethead() {
+    return head;
 }
 
 template <class T>
@@ -399,6 +402,7 @@ nodeT* AVL::remove(nodeT* t, dicIndex data) {
         }
         else if (t->right == NULL) {
             nodeT* temp = t->left;
+            
             delete t;
             return temp;
         }
@@ -603,24 +607,24 @@ void addRecord() {
             cout << "Enter ! to Exit" << endl;
             cout << "Enter > to Skip this step" << endl;
             cout << "Enter The definition of the word (" << newRecord.word << ") when it is a Noun." << endl;
-            cin >> input;
-            if (input == "!") {
+            cout << endl << "- ";
+            cin.ignore();
+            cin.getline(newRecord.meaning,200);
+
+            if (newRecord.meaning[0] == '!') {
                 if (data->data.posList.isEmpty())
-                {
                     dataOnTree.remove(dataOnTree.root, word);
-                }
                 step = 9;
             }
-            else if (input == ">") {
+            else if (newRecord.meaning[0] == '>') {
                 step++;
             }
             else if (input.size() <= 200) {
-                strcpy_s(newRecord.meaning, input.c_str());
                 data = dataOnTree.find(newRecord.word);
                 data->data.posList.insert(FEP);
                 strcpy_s(newRecord.type, noun.c_str());
                 writeToFile(file,newRecord, FEP);
-                step++;
+                step=9;
             }
             else {
                 cout << "Number of characters entered is greater than 200!!! \nEnter anything to continue. ";
@@ -628,60 +632,8 @@ void addRecord() {
             }
             break;
         case 3:
-            system("cls");
-            cout << "Enter ! to Exit" << endl;
-            cout << "Enter > to Skip this step" << endl;
-            cout << "Enter The definition of the word (" << newRecord.word << ") when it is a Verb." << endl;
-            cin >> input;
-            if (input == "!") {
-                if (data->data.posList.isEmpty())
-                {
-                    dataOnTree.remove(dataOnTree.root, word);
-                }
-                step = 9;
-            }
-            else if (input == ">") {
-                step++;
-            }
-            else if (input.size() <= 200) {
-                strcpy_s(newRecord.meaning, input.c_str());
-                data->data.posList.insert(FEP);
-                strcpy_s(newRecord.type, verb.c_str());
-                writeToFile(file,newRecord, FEP);
-                step++;
-            }
-            else {
-                cout << "Number of characters entered is greater than 200!!! \nEnter anything to continue. ";
-                cin >> input;
-            }
             break;
         case 4:
-            system("cls");
-            cout << "Enter ! to Exit" << endl;
-            cout << "Enter > to Skip this step" << endl;
-            cout << "Enter The definition of the word (" << newRecord.word << ") when it is a Adjective." << endl;
-            cin >> input;
-            if (input == "!") {
-                if (data->data.posList.isEmpty())
-                {
-                    dataOnTree.remove(dataOnTree.root, word);
-                }
-                step = 9;
-            }
-            else if (input == ">") {
-                step++;
-            }
-            else if (input.size() <= 200) {
-                strcpy_s(newRecord.meaning, input.c_str());
-                data->data.posList.insert(FEP);
-                strcpy_s(newRecord.type, adjective.c_str());
-                writeToFile(file,newRecord, FEP);
-                step++;
-            }
-            else {
-                cout << "Number of characters entered is greater than 200!!! \nEnter anything to continue. ";
-                cin >> input;
-            }
             break;
         case 5:
 
@@ -696,10 +648,83 @@ void addRecord() {
             break;
         }
     }
+}
 
+void display(nodeL<dictionary>* head) {
+    system("cls");
+    nodeL<dictionary>* buffer = head;
+    int ctr = 1;
+    string input;
+
+    cout << "Definition For: " << buffer->data.word << "('" << buffer->data.pron << "')" << endl << endl;
+    cout << "Types:" << endl;
+
+    while (buffer != NULL) {
+        cout << "\t" << ctr << ". " << buffer->data.type << ":" << endl;
+        cout << "\t\t" << buffer->data.meaning << endl << endl;
+        ctr++;
+        buffer = buffer->next;
+    }
+    cout << "Enter anything to continue. ";
+    cin >> input;
+}
+
+void getRecordsAndDisplay(nodeT* data) {
+    fstream file("data.bin", std::ios::in | std::ios::out | std::ios::binary);
+    List<dictionary> words;
+    dictionary buffer;
+    int f;
+    nodeL<int>* positions = data->data.posList.gethead();
+
+    if (positions== NULL) {
+        cout << "jdfdfg";
+        cin >> f;
+    }
     
+    while (positions != NULL)
+    {
+        buffer = readFromFile(file, positions->data);
+        words.insert(buffer);
+        positions = positions->next;
+    }   
+        
+    display(words.gethead());
+
+    words.empty();
 
 }
+
+void search() {
+    system("cls");
+    string key;
+    char keyArr[50];
+    nodeT* data = NULL;
+    cout << "Enter the word: ";
+    cin >> key;
+    strcpy_s(keyArr, key.c_str());
+    
+    switch (searchType(keyArr, charArraySize(keyArr)))
+    {
+    case normal:
+        data = dataOnTree.find(keyArr);
+        if (data != NULL) {
+            getRecordsAndDisplay(data);
+            break;
+        }
+    case prefix:
+        break;
+    case infix:
+        break;
+    case postfix:
+        break;
+    default:
+        break;
+    }
+
+
+}
+
+
 
 
 int main()
@@ -708,9 +733,13 @@ int main()
     init();
     char input='0';
     dicIndex word;
-    //test
 
-   
+    //test
+    char c[200];
+    dicIndex treeNode;
+    
+    int position = 5;
+    nodeT* buffer;
     while (input != '4') {
         cout << "Welcome To The Application" << endl << endl;
         cout << "\t1. Serach the definition of a word." << endl;
@@ -723,9 +752,8 @@ int main()
 
         switch (input)
         {
-        case '1':     
-            dataOnTree.inorder(dataOnTree.root);
-            cin >> input;
+        case '1':  
+            search();
             system("cls");
             break;
         case '2':
