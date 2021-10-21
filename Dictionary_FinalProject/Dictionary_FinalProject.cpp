@@ -18,7 +18,7 @@ using namespace std;
 string noun = "Noun", verb = "Verb" , pronoun = "Pronoun", adjective = "Adjective", adverb = "Adverb", preposition = "Prepostition", conjunction = "Conjunction", interjection = "Interjection";
 enum { normal = 1, prefix = 2, infix = 3, postfix = 4 };
 AVL dataOnTree;
-
+List<dicIndex> dataOnList,searchResults;
 int FEP=0;
 
 /*
@@ -650,6 +650,116 @@ void addRecord() {
     }
 }
 
+void inorderDicIndex(nodeT* t) {
+    if (t == NULL) {
+        return;
+    }
+
+    inorderDicIndex(t->left);
+    dataOnList.insert(t->data);
+    inorderDicIndex(t->right);
+}
+
+int checkPrefix(char word[], char key[], int keySize) {
+    for (int i = 0; i < keySize && i < 50 ; i++) {
+        if (word[i] > key[i]) {
+            return 1;
+        }
+        else if(word[i] < key[i]){
+            return -1;
+        }
+    }
+    return 0;
+}
+
+void prefixSearch(char key[]) {
+    inorderDicIndex(dataOnTree.root);
+    nodeL<dicIndex>* buffer = dataOnList.gethead();
+    string keyS;
+    char word[50];
+    keyS = withoutWildcard(key, charArraySize(key));
+    int res;
+    strcpy_s(word, keyS.c_str());
+
+    int sizeKey = charArraySize(word);
+
+    while (buffer != NULL)
+    {
+        res = checkPrefix(buffer->data.word, word, sizeKey);
+        if (res == 1) {
+            break;
+        }
+        else if (res == 0) {
+            searchResults.insert(buffer->data);
+        }     
+        buffer = buffer->next;
+    }
+    
+}
+
+int checkPostfix(char word[], int wordSize, char key[], int keySize) {
+    int i = wordSize - keySize;
+    for (int j = 0; j < keySize; j++, i++) {
+        if (word[i] != key[j])
+            return -1;
+    }
+    return 0;
+}
+
+void postfixSearch(char key[]) {
+    inorderDicIndex(dataOnTree.root);
+    nodeL<dicIndex>* buffer = dataOnList.gethead();
+    string keyS;
+    char word[50];
+    keyS = withoutWildcard(key, charArraySize(key));
+    int res;
+    strcpy_s(word, keyS.c_str());
+
+    int sizeKey = charArraySize(word);
+    int sizeWord; 
+
+    while (buffer != NULL)
+    {
+        sizeWord = charArraySize(buffer->data.word);
+        res = checkPostfix(buffer->data.word, sizeWord, word, sizeKey);
+        if (res == 0) {
+            searchResults.insert(buffer->data);
+        }
+        buffer = buffer->next;
+    }
+
+}
+
+int checkinfix(char word[], char key[]) {
+    string str = word, str2 = key;
+
+    if (str.find(str2) != string::npos) {
+        return 0;
+    }
+    return -1;
+}
+
+void infixSearch(char key[]) {
+    inorderDicIndex(dataOnTree.root);
+    nodeL<dicIndex>* buffer = dataOnList.gethead();
+    string keyS;
+    char word[50];
+    keyS = withoutWildcard(key, charArraySize(key));
+    int res;
+    strcpy_s(word, keyS.c_str());
+
+    
+    while (buffer != NULL)
+    {
+        res = checkinfix(buffer->data.word, word);
+        if (res == 0) {
+            searchResults.insert(buffer->data);
+        }
+        buffer = buffer->next;
+    }
+
+}
+
 void display(nodeL<dictionary>* head) {
     system("cls");
     nodeL<dictionary>* buffer = head;
@@ -694,11 +804,38 @@ void getRecordsAndDisplay(nodeT* data) {
 
 }
 
+
+
+dicIndex* displaySearchResults() {
+    cout << "Search Results" << endl << endl;
+    int ctr = 1;
+    nodeL<dicIndex>* buffer = searchResults.gethead();
+    dicIndex results[100];
+    while (buffer != NULL)
+    {
+        cout << ctr << ". " << buffer->data.word << endl;
+        if (ctr < 100)
+            results[ctr - 1] = buffer->data;
+
+        buffer = buffer->next;
+    }
+    cout << "Pick from The above choices: ";
+    cin >> ctr;
+
+    dicIndex* x = new dicIndex;
+    strcpy_s(x->word, results[ctr].word);
+    x->posList = results->posList;
+
+    return x;
+
+}
+
 void search() {
     system("cls");
     string key;
     char keyArr[50];
     nodeT* data = NULL;
+    dicIndex* x = NULL;
     cout << "Enter the word: ";
     cin >> key;
     strcpy_s(keyArr, key.c_str());
@@ -712,16 +849,66 @@ void search() {
             break;
         }
     case prefix:
+        prefixSearch(keyArr);
+        if (searchResults.isEmpty()) {
+            cout << "word is not found and no close matches...";
+            cin >> key;
+        }
+        else {
+            x = displaySearchResults();
+            data = dataOnTree.find(x->word);
+            getRecordsAndDisplay(data);
+            searchResults.empty();
+            dataOnList.empty();
+            system("cls");
+        }
         break;
     case infix:
+        infixSearch(keyArr);
+        if (searchResults.isEmpty()) {
+            cout << "word is not found and no close matches...";
+            cin >> key;
+        }
+        else {
+            x = displaySearchResults();
+            data = dataOnTree.find(x->word);
+            getRecordsAndDisplay(data);
+            searchResults.empty();
+            dataOnList.empty();
+            system("cls");
+        }
         break;
     case postfix:
+        postfixSearch(keyArr);
+        if (searchResults.isEmpty()) {
+            cout << "word is not found and no close matches...";
+            cin >> key;
+        }
+        else {
+            x = displaySearchResults();
+            data = dataOnTree.find(x->word);
+            getRecordsAndDisplay(data);
+            searchResults.empty();
+            dataOnList.empty();
+            system("cls");
+        }
         break;
     default:
         break;
     }
 
 
+}
+
+void about() {
+    system("cls");
+    string input;
+    cout << "Group Members:" << endl;
+    cout << "\t1. Amanuel Getachew" << endl;
+    cout << "\t2. Mahlet Zelalem" << endl;
+    cout << "\t3. Sara Tilahun" << endl;
+    cout << endl << endl << "Enter anything to go back: ";
+    cin >> input;
 }
 
 
@@ -737,9 +924,11 @@ int main()
     //test
     char c[200];
     dicIndex treeNode;
-    
+    string str("There are two needles in this haystack.");
+    string str2("needle");
     int position = 5;
-    nodeT* buffer;
+    nodeL<dicIndex>* buffer;
+
     while (input != '4') {
         cout << "Welcome To The Application" << endl << endl;
         cout << "\t1. Serach the definition of a word." << endl;
@@ -762,11 +951,10 @@ int main()
             system("cls");
             break;
         case '3':
-            //code implementation for about
-
+            about();
             system("cls");
             break;
-        case '4':
+        case '4':            
             break;
         default:
             input = '0';
