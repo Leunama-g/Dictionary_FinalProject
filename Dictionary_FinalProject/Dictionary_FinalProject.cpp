@@ -15,9 +15,13 @@ using namespace std;
 
 */
 
-string noun = "noun", pronoun = "pron", adjective = "adje", adverb = "adve", preposition = "prep", conjunction = "conj", interjection = "inte";
+string noun = "Noun", verb = "Verb" , pronoun = "Pronoun", adjective = "Adjective", adverb = "Adverb", preposition = "Prepostition", conjunction = "Conjunction", interjection = "Interjection";
 enum { normal = 1, prefix = 2, infix = 3, postfix = 4 };
 AVL dataOnTree;
+
+
+
+int FEP=0;
 
 /*
 
@@ -85,7 +89,7 @@ string withoutWildcard(char word[], int size) {
 struct dictionary {
 	char word[50];
 	char pron[60]; //pronunciation
-	char type[4];
+	char type[20];
 	char meaning[200];
 	bool deleted = false;
 };
@@ -300,12 +304,8 @@ int AVL::difference(nodeT* root) {
 
 nodeT* AVL::RRRotate(nodeT* root) {
     nodeT* y = root->right;
-    nodeT* T2 = y->left;
-
-    // Perform rotation  
+    root->right = y->left;
     y->left = root;
-    root->right = T2;
-
     return y;
 }
 
@@ -318,12 +318,8 @@ nodeT* AVL::RLRotate(nodeT* root) {
 
 nodeT* AVL::LLRotate(nodeT* root) {
     nodeT* x = root->left;
-    nodeT* T2 = x->right;
-
-    // Perform rotation  
+    root->left = x->right;   
     x->right = root;
-    root->left = T2;
-
     return x;
 }
 
@@ -461,9 +457,11 @@ void writeToFile(fstream& file, dictionary word, int pos) {
 		cout << "File did not open correctly!!(Writing to File Failed)";
 	}
 	else {
-        file.seekg(pos);
-		file.write((char*)&word, sizeof(word));
+        file.seekp(pos);
+		file.write((char*)&word, sizeof(dictionary));
+        FEP = file.tellp();
 	}
+    
 }
 
 
@@ -475,10 +473,18 @@ dictionary readFromFile(fstream& file, int pos) {
 	}
 	else {
 		file.seekg(pos);
-		file.read((char*)&readData, sizeof(readData));
+		file.read((char*)&readData, sizeof(dictionary));
 	}
 	return readData;
 }
+
+/*
+
+
+    dictionary management functions
+
+
+*/
 
 //load dictionary records into memory
 //only the word and the position of their respective meanings on the file are loaded 
@@ -487,48 +493,224 @@ void init() {
     dictionary incomingData;
     dicIndex treeNode;
     nodeT* buffer;
-    int pos = 0;
+    int position = 0;
 
-    fstream file("data.bin", ios::binary | ios::in | ios::out);
-
-    while (file.eof()) {
-        incomingData = readFromFile(file, pos);
+    fstream file("data.bin", std::ios::in | std::ios::out | std::ios::binary);
+    
+    while (!(file.peek() == EOF)) {
+        incomingData = readFromFile(file, position);
+        
         buffer = dataOnTree.find(incomingData.word);
-
         //check if the record that was read is deleted data
         if (!incomingData.deleted) {
             //inserting a word that has not yet been inserted to the tree
-            if (buffer == NULL) {
+            if (buffer == NULL) {                
                 strcpy_s(treeNode.word, incomingData.word);
-                treeNode.posList.insert(pos);
-                if (dataOnTree.isEmpty())
+                if (dataOnTree.isEmpty()) {
                     dataOnTree.root = dataOnTree.insert(dataOnTree.root, treeNode);
-                else
-                    dataOnTree.insert(dataOnTree.root, treeNode);
+                    dataOnTree.root->data.posList.insert(position);
+                }                    
+                else {
+                    buffer = new nodeT;
+                    buffer = dataOnTree.insert(dataOnTree.root, treeNode);
+                    buffer->data.posList.insert(position);
+                    
+                }                    
             }
             else
-                buffer->data.posList.insert(pos);
-        }  
-        pos += sizeof(dictionary);
-    }    
+                buffer->data.posList.insert(position);
+        } 
+        position += sizeof(dictionary);
+    }
+    if (!dataOnTree.isEmpty()) {
+        FEP = position;
+    }
+        
+
     file.close();
+    
 }
 
+void addRecord() {
+    int step = 0;
+    dictionary newRecord;
+    string input;
+    nodeT* data=new nodeT;
+    dicIndex word;
 
+    fstream file("data.bin", std::ios::in | std::ios::out | std::ios::binary );
+
+    while (step < 9) {
+        switch (step)
+        {
+        case 0:
+            system("cls");
+            //enter word
+            cout << "Enter ! to Exit" << endl;
+            cout << "Enter The Word: ";
+            cin >> input;
+            if (input == "!") {
+                step = 9;
+            }
+            else if (input.size() <= 50) {
+                strcpy_s(newRecord.word, input.c_str());
+                data = dataOnTree.find(newRecord.word);
+                if (data == NULL) {
+                    step++;
+                }
+                else {
+                    cout << "Word already exists...try again \nEnter anything to continue: ";
+                    cin >> input;
+                }
+                
+            }
+            else {
+                cout << "Number of characters entered is greater than 50!!! \nEnter anything to continue. ";
+                cin >> input;
+            }                
+            break;
+        case 1:
+            system("cls");
+            cout << "Enter ! to Exit" << endl;
+            cout << "Enter The pronounciation of the word (" << newRecord.word << "): ";
+            cin >> input;
+            if (input == "!") {
+                step = 9;
+            }
+            else if (input.size() <= 60) {
+                strcpy_s(newRecord.pron, input.c_str());
+                strcpy_s(word.word, newRecord.word);
+                if (dataOnTree.isEmpty()) {
+                    dataOnTree.root = dataOnTree.insert(dataOnTree.root, word);
+                    data = dataOnTree.root;
+                }
+                else
+                {
+                    cout << "h";
+                    dataOnTree.insert(dataOnTree.root, word);
+                }
+                
+                step++;
+            }
+            else {
+                cout << "Number of characters entered is greater than 50!!! \nEnter anything to continue. ";
+                cin >> input;
+            }
+            data = dataOnTree.find(newRecord.word);
+            break;
+        case 2:
+            system("cls");
+            cout << "Enter ! to Exit" << endl;
+            cout << "Enter > to Skip this step" << endl;
+            cout << "Enter The definition of the word (" << newRecord.word << ") when it is a Noun." << endl;
+            cin >> input;
+            if (input == "!") {
+                if (data->data.posList.isEmpty())
+                {
+                    dataOnTree.remove(dataOnTree.root, word);
+                }
+                step = 9;
+            }
+            else if (input == ">") {
+                step++;
+            }
+            else if (input.size() <= 200) {
+                strcpy_s(newRecord.meaning, input.c_str());
+                data = dataOnTree.find(newRecord.word);
+                data->data.posList.insert(FEP);
+                strcpy_s(newRecord.type, noun.c_str());
+                writeToFile(file,newRecord, FEP);
+                step++;
+            }
+            else {
+                cout << "Number of characters entered is greater than 200!!! \nEnter anything to continue. ";
+                cin >> input;
+            }
+            break;
+        case 3:
+            system("cls");
+            cout << "Enter ! to Exit" << endl;
+            cout << "Enter > to Skip this step" << endl;
+            cout << "Enter The definition of the word (" << newRecord.word << ") when it is a Verb." << endl;
+            cin >> input;
+            if (input == "!") {
+                if (data->data.posList.isEmpty())
+                {
+                    dataOnTree.remove(dataOnTree.root, word);
+                }
+                step = 9;
+            }
+            else if (input == ">") {
+                step++;
+            }
+            else if (input.size() <= 200) {
+                strcpy_s(newRecord.meaning, input.c_str());
+                data->data.posList.insert(FEP);
+                strcpy_s(newRecord.type, verb.c_str());
+                writeToFile(file,newRecord, FEP);
+                step++;
+            }
+            else {
+                cout << "Number of characters entered is greater than 200!!! \nEnter anything to continue. ";
+                cin >> input;
+            }
+            break;
+        case 4:
+            system("cls");
+            cout << "Enter ! to Exit" << endl;
+            cout << "Enter > to Skip this step" << endl;
+            cout << "Enter The definition of the word (" << newRecord.word << ") when it is a Adjective." << endl;
+            cin >> input;
+            if (input == "!") {
+                if (data->data.posList.isEmpty())
+                {
+                    dataOnTree.remove(dataOnTree.root, word);
+                }
+                step = 9;
+            }
+            else if (input == ">") {
+                step++;
+            }
+            else if (input.size() <= 200) {
+                strcpy_s(newRecord.meaning, input.c_str());
+                data->data.posList.insert(FEP);
+                strcpy_s(newRecord.type, adjective.c_str());
+                writeToFile(file,newRecord, FEP);
+                step++;
+            }
+            else {
+                cout << "Number of characters entered is greater than 200!!! \nEnter anything to continue. ";
+                cin >> input;
+            }
+            break;
+        case 5:
+
+            break;
+        case 6:
+            break;
+        case 7:
+            break;
+        case 8:
+            break;
+        default:
+            break;
+        }
+    }
+
+    
+
+}
 
 
 int main()
 {
     //load data to memory
     init();
-
     char input='0';
-    char x[50] = { 'a','b','c','*' };
-    int size = charArraySize(x);
-    string y = withoutWildcard(x, size);
+    dicIndex word;
+    //test
 
-    strcpy_s(x, y.c_str());
-
+   
     while (input != '4') {
         cout << "Welcome To The Application" << endl << endl;
         cout << "\t1. Serach the definition of a word." << endl;
@@ -537,19 +719,18 @@ int main()
         cout << "\t4. Exit." << endl << endl;
 
         cout << "Enter Your Choice: ";
-        cin >> setw(1) >> input;
+        cin >> input;
 
         switch (input)
         {
-        case '1':
-            //code implementation for search 
-            cout << x;
-            cin >> x;
+        case '1':     
+            dataOnTree.inorder(dataOnTree.root);
+            cin >> input;
             system("cls");
             break;
         case '2':
             //code implementation for add record
-
+            addRecord();
             system("cls");
             break;
         case '3':
@@ -571,7 +752,7 @@ int main()
 
     
     
-
-	
+    //empty AVLtree
+    
 
 }
